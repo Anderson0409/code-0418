@@ -1,46 +1,49 @@
 import streamlit as st
 
-def app():
+def main():
     st.title('Anderson')
-
-    # Number of exams input
-    exam_number = st.number_input("Enter the number of exams:")
-
-    # If the number of exams is negative, display error and ask again
-    if exam_number < 0:
-        st.error("ERROR: Number of exams must be positive.")
-        exam_number = st.number_input("Enter the number of exams again:")
-        keep_going = "y"
+    keep_going = "Y"
     total = 0
-    key = 0
-    student_number=0
-    while keep_going.lower() == "yes":
-        student_number = st.number_input("Enter the number of students:")
-
-        # If the number of students is negative, display error and ask again
-        if student_number < 0:
-            st.error("ERROR: Number of students must be positive.")
-            student_number = st.number_input("Enter the number of students again:")
+    total_students = 0  
+    
+    # Enter the number of exams, the number of exams will not change no matter whether add students
+    exam_number = st.number_input("Enter the number of exams:", step=1, value=1, format="%d")
+    
+    while keep_going.upper() == "Y":
+        student_number = st.number_input(f"Enter the number of students:", key=f"student_number_{total_students}", step=1, value=1, format="%d")
+        
+        # Measure whether student number is positive
+        if student_number <= 0:
+            st.error("ERROR: Please enter a positive number of students.")
+            student_number = st.number_input(f"Enter the number of students again: ", key=f"student_number_{total_students}_retry", step=1, value=1, format="%d")
 
         for s_num in range(student_number):
             personal_total = 0
-            st.write(f"Student number: {s_num + 1}")
+            st.write("student number : ", total_students + 1)  
             st.write("-" * 35)
             
             for e_num in range(exam_number):
-                score = st.number_input(f"What is the score of student {s_num + 1 + key}, exam {e_num + 1}:", min_value=0, max_value=100, step=0.01)
+                score = st.number_input(f"What is the score of student{total_students+1}, exam{e_num+1} : ", key=f"score_{total_students}_{e_num}", step=1, value=1, format="%d")
+                
+                while score > 100 or score < 0:
+                    st.error("Please enter a score between 0 and 100.")
+                    score = st.number_input(f"The score of student{total_students+1}, exam{e_num+1} : ", key=f"score_{total_students}_{e_num}_retry", step=1, value=1, format="%d")
+                
                 personal_total += score
                 total += score
             
             personal_average = personal_total / exam_number
-            st.write(f"The average score of student {s_num + 1} is: {personal_average}")
             st.write("=" * 35)
+            st.write(f"The average score of student{total_students+1} is {personal_average}")
+            st.write("=" * 35)
+            total_students += 1  # 更新总的学生人数
         
-        # Ask if user wants to calculate scores for more students
-        keep_going = st.radio('Do you want to calculate scores for more students?', ('Yes', 'No'))
-        key += student_number
+        # Whether to proceed to the next cycle
+        keep_going = st.text_input('Do you want to calculate another students? (Enter "Y" for yes): ', key=f"keep_going_{total_students}").strip()
 
     # Display the total average
+    st.write()
     st.write("=" * 35)
-    total_average = total / exam_number/(key+student_number)
-    st.write("The average score (all exams) of the class is:", total_average)
+    total_average = total / (total_students * exam_number)  
+    st.write("The average score (all exam) of class is : ", total_average)
+
