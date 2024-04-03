@@ -13,7 +13,7 @@ def app():
         keep_going = "y"
     total = 0
     key = 0
-
+    student_number=0
     while keep_going.lower() == "yes":
         student_number = st.number_input("Enter the number of students:")
 
